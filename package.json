@@ -1,0 +1,32 @@
+{
+  "name": "otus_lesson_13_base",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "build": "webpack --mode=production",
+    "dev": "webpack serve --mode=development",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nikiforov-Gleb/Otus_Lesson_13_Base.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nikiforov-Gleb/Otus_Lesson_13_Base/issues"
+  },
+  "homepage": "https://github.com/Nikiforov-Gleb/Otus_Lesson_13_Base#readme",
+  "devDependencies": {
+    "css-loader": "^7.1.3",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.104.1",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.3"
+  },
+  "dependencies": {
+    "html-webpack-plugin": "^5.6.6"
+  }
+}
