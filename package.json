@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack --mode=production",
     "dev": "webpack serve --mode=development",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "lint:check": "prettier --check .",
     "lint:fix": "prettier --write .",
     "prepare": "husky install"
@@ -23,7 +23,13 @@
   },
   "homepage": "https://github.com/Nikiforov-Gleb/Otus_Lesson_13_Base#readme",
   "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.0",
+    "babel-jest": "^30.2.0",
     "css-loader": "^7.1.3",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0",
     "prettier": "3.8.1",
     "style-loader": "^4.0.0",
     "webpack": "^5.104.1",
