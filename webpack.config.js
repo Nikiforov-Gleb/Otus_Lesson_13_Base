@@ -2,10 +2,14 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: {
+    index: "./src/index.js",
+    weather: "./src/js/weather.js",
+  },
   output: {
-    filename: "main.js",
+    filename: "[name].bundle.js",
     path: path.resolve(__dirname, "dist"),
+    clean: true,
   },
   devServer: {
     static: {
@@ -14,7 +18,18 @@ module.exports = {
     compress: true,
     port: 9000,
   },
-  plugins: [new HtmlWebpackPlugin()],
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: "./src/index.html",
+      filename: "index.html",
+      chunks: ["index"],
+    }),
+    new HtmlWebpackPlugin({
+      template: "./src/pages/weather.html",
+      filename: "weather.html",
+      chunks: ["weather"],
+    }),
+  ],
   module: {
     rules: [
       {

@@ -1,0 +1,502 @@
+/* Weather Forecast App Styles */
+
+/* Variables */
+:root {
+  --header-color: #f7e604;
+  --elements-color: #e2ac49;
+  --elements-dark: #c78d23;
+  --elements-backlight: #f0debe;
+  --background-color: #f4f7db;
+  --text-color: #2d3748;
+  --text-light: #718096;
+  --card-color: #ffffff;
+  --danger-color: #e53e3e;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-800: #1e293b;
+  --radius: 0.5rem;
+  --transition: 200ms ease-out;
+  --shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Reset and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Global Styles */
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+    Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Layout */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+main.container {
+  flex: 1;
+  padding-top: 1.5rem;
+  padding-bottom: 2rem;
+}
+
+section {
+  margin-bottom: 1.5rem;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Header */
+header {
+  background-color: var(--header-color);
+  color: var(--text-color);
+  padding: 1rem 0;
+  box-shadow: var(--shadow);
+}
+
+h1 {
+  font-family:
+    "Lobster",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
+  font-weight: 400;
+  font-size: 2.5rem;
+  line-height: 1.25;
+}
+
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+section {
+  margin-bottom: 2.5rem;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Footer */
+footer {
+  background-color: var(--gray-800);
+  color: var(--gray-300);
+  padding: 1.5rem 0;
+  margin-top: auto;
+  font-size: 0.875rem;
+}
+
+footer p {
+  margin-bottom: 0.5rem;
+}
+
+/* Cards */
+.card {
+  background-color: var(--card-color);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  height: 100%;
+}
+
+/* Search Form */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  transition: border-color var(--transition);
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--elements-color);
+  box-shadow: 0 0 0 3px var(--elements-backlight);
+}
+
+.clear-button {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: none;
+  color: var(--gray-400);
+  font-size: 1.25rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clear-button:hover {
+  color: var(--danger-color);
+}
+
+.btn-primary {
+  background-color: var(--elements-color);
+  color: var(--text-color);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+  transition: background-color var(--transition);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--elements-dark);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Weather Section */
+.weather-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+#cityName {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+#currentDateTime {
+  color: var(--text-light);
+  font-size: 0.875rem;
+}
+
+.last-updated {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-light);
+  font-size: 0.875rem;
+}
+
+.weather-content {
+  margin-top: 1rem;
+}
+
+.current-weather {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.weather-primary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.weather-icon {
+  flex-shrink: 0;
+}
+
+.weather-icon img {
+  width: 80px;
+  height: 80px;
+}
+
+.temperature {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.weather-description {
+  color: var(--text-light);
+  text-transform: capitalize;
+}
+
+.weather-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.weather-detail {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background-color: var(--background-color);
+  border-radius: var(--radius);
+}
+
+.weather-detail i {
+  font-size: 1.25rem;
+  color: var(--elements-color);
+}
+
+.weather-detail p:first-of-type {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin-bottom: 0.25rem;
+}
+
+.weather-detail p:last-of-type {
+  font-weight: 600;
+}
+
+/* Desktop layout container */
+.desktop-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.main-content {
+  width: 100%;
+}
+
+.sidebar {
+  width: 100%;
+}
+
+.fa-map-location-dot {
+  font-size: 2rem;
+}
+
+/* History Section */
+.history-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: var(--gray-50);
+  border-radius: var(--radius);
+  transition: background-color var(--transition);
+  cursor: pointer;
+}
+
+.history-item:hover {
+  background-color: var(--gray-100);
+}
+
+.history-item-city {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.city-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: var(--elements-color);
+  color: white;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.city-info h3 {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.city-info p {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+}
+
+.history-item-weather {
+  text-align: right;
+}
+
+.history-item-weather p:first-of-type {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.history-item-weather p:last-of-type {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+}
+
+.history-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Map Section */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.section-header h2 {
+  font-size: 1.25rem;
+}
+
+.section-header i {
+  color: var(--elements-color);
+}
+
+.map-container {
+  height: 250px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background-color: var(--gray-100);
+  position: relative;
+}
+
+.map-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* State Containers (Empty, Loading, Error) */
+.state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem 1rem;
+  min-height: 200px;
+  gap: 1rem;
+}
+
+.state-container .state-icon {
+  font-size: 3rem;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.state-container .state-icon.error {
+  color: var(--danger-color);
+}
+
+.state-container h3 {
+  margin-bottom: 0.5rem;
+}
+
+.state-container p {
+  color: var(--text-light);
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+/* Media Queries */
+@media (min-width: 640px) {
+  form {
+    flex-direction: row;
+  }
+
+  header h1 {
+    font-size: 1.75rem;
+  }
+
+  .weather-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .map-container {
+    height: 300px;
+  }
+}
+
+/* Media Queries */
+@media (min-width: 1024px) {
+  main.container {
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+  }
+
+  .desktop-container {
+    flex-direction: row;
+  }
+
+  .main-content {
+    flex: 2;
+  }
+
+  .sidebar {
+    flex: 1;
+  }
+
+  section {
+    margin-bottom: 2.5rem;
+  }
+
+  .card {
+    transition: transform var(--transition);
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+  }
+}
