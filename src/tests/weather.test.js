@@ -57,7 +57,19 @@ describe("Unit tests", () => {
     const historyList = document.querySelector(".history-list");
     const template = document.querySelector("#history-item-template");
 
-    addHistoryItem("Москва", "5°C", "Облачно", template, historyList);
+    const mockWeatherData = {
+      name: "Москва",
+      main: {
+        temp: 5,
+      },
+      weather: [
+        {
+          description: "Облачно",
+        },
+      ],
+    };
+
+    addHistoryItem(mockWeatherData, template, historyList);
 
     const item = historyList.querySelector(".history-item");
     expect(item).not.toBeNull();
