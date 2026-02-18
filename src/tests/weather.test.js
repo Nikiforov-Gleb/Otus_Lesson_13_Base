@@ -1,32 +1,15 @@
 import { updateLastUpdated, addHistoryItem } from "../js/weather.js";
 //import { fireEvent } from "@testing-library/dom";
+import fs from "fs";
+import path from "path";
 
 function setupDOM() {
-  document.body.innerHTML = `
-    <form>
-      <input id="cityInput" />
-      <button id="submitButton" disabled>Submit</button>
-    </form>
+  const html = fs.readFileSync(
+    path.resolve(__dirname, "../pages/weather.html"),
+    "utf8",
+  );
 
-    <div class="history-actions">
-        <button class="btn-secondary"></button>
-    </div>
-
-    <h2 id="cityName"></h2>
-    <span id="currentDateTime"></span>
-    <span id="lastUpdated"></span>
-
-    <ul class="history-list"></ul>
-
-    <template id="history-item-template">
-      <li class="history-item">
-        <span class="city-name"></span>
-        <span class="city-datetime"></span>
-        <span class="weather-temp"></span>
-        <span class="weather-desc"></span>
-      </li>
-    </template>
-  `;
+  document.documentElement.innerHTML = html;
 }
 
 beforeEach(() => {

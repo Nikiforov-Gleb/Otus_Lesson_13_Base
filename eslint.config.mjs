@@ -27,4 +27,13 @@ export default defineConfig([
     files: ["src/**/*.test.js"],
     ...jest.configs["flat/recommended"],
   },
+  {
+    files: ["src/**/*.test.js"],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
+    },
+  },
 ]);

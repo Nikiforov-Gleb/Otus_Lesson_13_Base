@@ -150,29 +150,33 @@ export function updateLastUpdated(el, lastUpdate) {
   }
 }
 
-export function addHistoryItem(weatherData, itemTemplate, historyList) {
+export function addHistoryItem(weatherData, itemTemplate, historyListEl) {
+  const oldHistory = JSON.parse(localStorage.getItem("searchHistory")) || [];
   const cityName = weatherData.name;
 
-  const existingItem = Array.from(historyList.children).find(
-    (item) => item.querySelector(".city-name")?.textContent === cityName,
-  );
+  const newItem = {
+    name: weatherData.name,
+    time: getShortDateAndTime(),
+    temp: Math.round(weatherData.main.temp),
+    description: weatherData.weather[0].description,
+  };
 
-  if (existingItem) {
-    historyList.removeChild(existingItem);
-  }
+  const modifiedHistory = oldHistory.filter((item) => item.name !== cityName);
+  modifiedHistory.unshift(newItem);
+  const trimModifiedHistory = modifiedHistory.slice(0, 10);
+  localStorage.setItem("searchHistory", JSON.stringify(trimModifiedHistory));
 
-  const clone = itemTemplate.content.cloneNode(true);
-  clone.querySelector(".city-name").textContent = weatherData.name;
-  clone.querySelector(".city-datetime").textContent = getShortDateAndTime();
-  clone.querySelector(".weather-temp").textContent =
-    Math.round(weatherData.main.temp) + "°C";
-  clone.querySelector(".weather-desc").textContent =
-    weatherData.weather[0].description;
-  historyList.prepend(clone);
+  historyListEl.innerHTML = "";
+  trimModifiedHistory.forEach((item) => {
+    const clone = itemTemplate.content.cloneNode(true);
 
-  if (historyList.children.length > 10) {
-    historyList.removeChild(historyList.lastElementChild);
-  }
+    clone.querySelector(".city-name").textContent = item.name;
+    clone.querySelector(".city-datetime").textContent = item.time;
+    clone.querySelector(".weather-temp").textContent = item.temp + "°C";
+    clone.querySelector(".weather-desc").textContent = item.description;
+
+    historyListEl.append(clone);
+  });
 }
 
 export function getShortDateAndTime(date = new Date()) {
