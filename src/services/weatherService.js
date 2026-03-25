@@ -9,7 +9,6 @@ export class WeatherService {
   }
 
   async getWeatherByGeolocation(latitude, longitude) {
-    console.log(latitude);
     const weatherResponse = await fetch(
       `https://api.openweathermap.org/data/2.5/weather?units=metric&lang=ru&lat=${latitude}&lon=${longitude}&appid=${this.apiKey}`,
     );

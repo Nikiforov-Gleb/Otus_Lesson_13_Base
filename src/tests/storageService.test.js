@@ -1,5 +1,6 @@
 import { StorageService } from "../services/storageService";
 import { DateFormatter } from "../services/dateFormatter";
+import { EventEmitter } from "../eventBus";
 
 jest.mock("../services/dateFormatter", () => ({
   DateFormatter: {
@@ -8,6 +9,7 @@ jest.mock("../services/dateFormatter", () => ({
 }));
 
 describe("Storage Service", () => {
+  let emitter;
   let service;
   DateFormatter.getShortDateAndTime.mockReturnValue("24 мар., 09:21");
 
@@ -24,7 +26,8 @@ describe("Storage Service", () => {
   };
 
   beforeEach(() => {
-    service = new StorageService();
+    emitter = new EventEmitter();
+    service = new StorageService(emitter);
     localStorage.clear();
   });
 
