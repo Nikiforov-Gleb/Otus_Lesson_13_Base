@@ -2,7 +2,10 @@ import "../css/styles.css";
 import { WeatherService } from "../services/weatherService.js";
 import { LocationService } from "../services/locationService.js";
 import { StorageService } from "../services/storageService.js";
-import { WeatherView } from "../view/weatherView.js";
+import { EventEmitter } from "../eventBus.js";
+import { WeatherInfoView } from "../components/weatherInfoView.js";
+import { MapView } from "../components/mapView.js";
+import { HistoryView } from "../components/historyView.js";
 
 async function initWeather() {
   const params = new URLSearchParams(window.location.search);
@@ -16,15 +19,17 @@ async function initWeather() {
   );
   const clearInputBtn = document.querySelector("#clearButton");
 
+  const eventBus = new EventEmitter();
+
   const weatherService = new WeatherService();
   const locationService = new LocationService();
-  const storageService = new StorageService();
+  new StorageService(eventBus);
 
-  const weatherView = new WeatherView();
+  new WeatherInfoView(eventBus);
+  new MapView(eventBus);
+  new HistoryView(eventBus);
 
   input.value = "";
-  let lastUpdateValue = new Date();
-  setInterval(() => weatherView.updateLastUpdated(lastUpdateValue), 60000);
 
   let weather;
   try {
@@ -38,11 +43,7 @@ async function initWeather() {
       );
     }
 
-    console.log(weather);
-    weatherView.renderWeather(weather);
-    const history = storageService.addItemHistory(weather);
-    weatherView.renderHistory(history);
-    weatherView.renderMap(weather.name, weather.coord.lat, weather.coord.lon);
+    eventBus.emit("weather:loaded", weather);
   } catch (err) {
     alert("Город не найден");
     console.log(err);
@@ -62,10 +63,7 @@ async function initWeather() {
 
     try {
       weather = await weatherService.getWeatherByCityName(cityName);
-      weatherView.renderWeather(weather);
-      const history = storageService.addItemHistory(weather);
-      weatherView.renderHistory(history);
-      weatherView.renderMap(weather.name, weather.coord.lat, weather.coord.lon);
+      eventBus.emit("weather:loaded", weather);
     } catch (err) {
       alert("Город не найден");
       console.log(err);
@@ -79,8 +77,7 @@ async function initWeather() {
   });
 
   clearHistoryBtn.addEventListener("click", () => {
-    storageService.clearHistory();
-    weatherView.clearHistory();
+    eventBus.emit("history:clear");
   });
 }
 

@@ -1,4 +1,8 @@
-import { WeatherView } from "../view/weatherView";
+import { WeatherInfoView } from "../components/weatherInfoView";
+import { MapView } from "../components/mapView";
+import { HistoryView } from "../components/historyView";
+import { EventEmitter } from "../eventBus";
+
 import fs from "fs";
 import path from "path";
 
@@ -18,7 +22,7 @@ function setupDOM() {
 }
 
 describe("Weather view", () => {
-  let view;
+  let eventBus;
 
   const weatherData = {
     name: "Москва",
@@ -35,11 +39,15 @@ describe("Weather view", () => {
     wind: {
       speed: 5,
     },
+    coord: {
+      lat: 55,
+      lon: 37,
+    },
   };
 
   beforeEach(() => {
     setupDOM();
-    view = new WeatherView();
+    eventBus = new EventEmitter();
   });
 
   afterEach(() => {
@@ -47,7 +55,8 @@ describe("Weather view", () => {
   });
 
   it("should correctly render weather info", () => {
-    view.renderWeather(weatherData);
+    new WeatherInfoView(eventBus);
+    eventBus.emit("weather:loaded", weatherData);
 
     expect(document.querySelector("#cityName").textContent).toBe("Москва");
     expect(document.querySelector(".temperature").textContent).toBe("5°C");
@@ -67,7 +76,8 @@ describe("Weather view", () => {
   });
 
   it("should correctly render map", async () => {
-    await view.renderMap("Москва", 55, 37);
+    new MapView(eventBus);
+    eventBus.emit("weather:loaded", weatherData);
 
     const img = document.querySelector(".map-container img");
 
@@ -76,6 +86,7 @@ describe("Weather view", () => {
   });
 
   it("should correctly render history", async () => {
+    new HistoryView(eventBus);
     const history = [
       {
         name: "Москва",
@@ -85,7 +96,7 @@ describe("Weather view", () => {
       },
     ];
 
-    view.renderHistory(history);
+    eventBus.emit("history:updated", history);
 
     const item = document.querySelector(".history-item");
     expect(item).not.toBeNull();
@@ -97,24 +108,26 @@ describe("Weather view", () => {
 
   it("clearHistory should  removes all items", () => {
     document.querySelector(".history-list").innerHTML = "<li>test</li>";
-    view.clearHistory();
+    new HistoryView(eventBus);
+    eventBus.emit("history:updated", null);
 
     expect(document.querySelector(".history-list").innerHTML).toBe("");
   });
 
   it("updateLastUpdated shows the correct time", () => {
+    const weatherView = new WeatherInfoView(eventBus);
     const el = document.querySelector("#lastUpdated");
 
     const twoMinutesAgo = new Date(Date.now() - 2 * 60000);
-    view.updateLastUpdated(twoMinutesAgo);
+    weatherView.updateLastUpdated(twoMinutesAgo);
     expect(el.textContent).toBe("Обновлено 2 минут назад");
 
     const oneMinuteAgo = new Date(Date.now() - 60000);
-    view.updateLastUpdated(oneMinuteAgo);
+    weatherView.updateLastUpdated(oneMinuteAgo);
     expect(el.textContent).toBe("Обновлено 1 минуту назад");
 
     const now = new Date();
-    view.updateLastUpdated(now);
+    weatherView.updateLastUpdated(now);
     expect(el.textContent).toBe("Обновлено только что");
   });
 });
