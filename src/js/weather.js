@@ -1,4 +1,8 @@
 import "../css/styles.css";
+import { WeatherService } from "../services/weatherService.js";
+import { LocationService } from "../services/locationService.js";
+import { StorageService } from "../services/storageService.js";
+import { WeatherView } from "../view/weatherView.js";
 
 async function initWeather() {
   const params = new URLSearchParams(window.location.search);
@@ -12,33 +16,33 @@ async function initWeather() {
   );
   const clearInputBtn = document.querySelector("#clearButton");
 
-  const lastUpdateEl = document.querySelector("#lastUpdated");
-  const weatherInfoEl = document.querySelector("#weatherData");
-  const mapEl = document.querySelector(".map-container");
+  const weatherService = new WeatherService();
+  const locationService = new LocationService();
+  const storageService = new StorageService();
 
-  const historyList = document.querySelector(".history-list");
-  const historyItemtemplate = document.querySelector("#history-item-template");
+  const weatherView = new WeatherView();
 
   input.value = "";
   let lastUpdateValue = new Date();
-  setInterval(() => updateLastUpdated(lastUpdateEl, lastUpdateValue), 60000);
+  setInterval(() => weatherView.updateLastUpdated(lastUpdateValue), 60000);
 
   let weather;
   try {
     if (cityNameParam) {
-      weather = await getWeatherByCityName(cityNameParam);
+      weather = await weatherService.getWeatherByCityName(cityNameParam);
     } else {
-      const position = await getCurrentPosition();
-      weather = await getWeatherByGeolocation(
+      const position = await locationService.getCurrentPosition();
+      weather = await weatherService.getWeatherByGeolocation(
         position.coords.latitude,
         position.coords.longitude,
       );
     }
 
     console.log(weather);
-    showWeather(weatherInfoEl, weather);
-    addHistoryItem(weather, historyItemtemplate, historyList);
-    showMap(mapEl, weather.name, weather.coord.lat, weather.coord.lon);
+    weatherView.renderWeather(weather);
+    const history = storageService.addItemHistory(weather);
+    weatherView.renderHistory(history);
+    weatherView.renderMap(weather.name, weather.coord.lat, weather.coord.lon);
   } catch (err) {
     alert("Город не найден");
     console.log(err);
@@ -57,10 +61,11 @@ async function initWeather() {
     const cityName = inputEl.value;
 
     try {
-      weather = await getWeatherByCityName(cityName);
-      showWeather(weatherInfoEl, weather);
-      addHistoryItem(weather, historyItemtemplate, historyList);
-      showMap(mapEl, weather.name, weather.coord.lat, weather.coord.lon);
+      weather = await weatherService.getWeatherByCityName(cityName);
+      weatherView.renderWeather(weather);
+      const history = storageService.addItemHistory(weather);
+      weatherView.renderHistory(history);
+      weatherView.renderMap(weather.name, weather.coord.lat, weather.coord.lon);
     } catch (err) {
       alert("Город не найден");
       console.log(err);
@@ -74,126 +79,8 @@ async function initWeather() {
   });
 
   clearHistoryBtn.addEventListener("click", () => {
-    historyList.innerHTML = "";
-  });
-}
-
-function getCurrentPosition() {
-  return new Promise((resolve, reject) => {
-    navigator.geolocation.getCurrentPosition(resolve, reject);
-  });
-}
-
-async function getWeatherByCityName(cityName) {
-  let response = await fetch(
-    `https://api.openweathermap.org/data/2.5/weather?units=metric&lang=ru&q=${cityName}&appid=c722da73a7894ccbda8169bd7d4e9dc2`,
-  );
-  return await response.json();
-}
-
-async function getWeatherByGeolocation(latitude, longitude) {
-  console.log(latitude);
-  const weatherResponse = await fetch(
-    `https://api.openweathermap.org/data/2.5/weather?units=metric&lang=ru&lat=${latitude}&lon=${longitude}&appid=c722da73a7894ccbda8169bd7d4e9dc2`,
-  );
-  const weatherData = await weatherResponse.json();
-  const geoResponse = await fetch(
-    `http://api.openweathermap.org/geo/1.0/reverse?lat=${latitude}&lon=${longitude}&limit=1&appid=c722da73a7894ccbda8169bd7d4e9dc2`,
-  );
-  const geoData = await geoResponse.json();
-
-  if (geoData[0]?.local_names?.ru) {
-    weatherData.name = geoData[0].local_names.ru;
-  }
-
-  return weatherData;
-}
-
-export function showWeather(weatherInfoEl, weatherData) {
-  const icon = weatherData.weather[0].icon;
-
-  weatherInfoEl.querySelector("#cityName").textContent = weatherData.name;
-  weatherInfoEl.querySelector(".weather-icon img").src =
-    `https://openweathermap.org/img/wn/${icon}@2x.png`;
-  weatherInfoEl.querySelector(".temperature").textContent =
-    Math.round(weatherData.main.temp) + "°C";
-  weatherInfoEl.querySelector(".weather-description").textContent =
-    weatherData.weather[0].description;
-  weatherInfoEl.querySelector("[data-wind]").textContent =
-    weatherData.wind.speed + " м/с";
-  weatherInfoEl.querySelector("[humid]").textContent =
-    weatherData.main.humidity + "%";
-  weatherInfoEl.querySelector("[pressure]").textContent =
-    weatherData.main.pressure + " Па";
-  weatherInfoEl.querySelector("#currentDateTime").textContent = getLongDate();
-
-  updateLastUpdated(weatherInfoEl.querySelector("#lastUpdated"), new Date());
-}
-
-export async function showMap(mapEl, name, lat, lon) {
-  const mapUrl = `https://static-maps.yandex.ru/v1?ll=${lon},${lat}&z=12&l=map&pt=${lon},${lat},pm2rdm&lang=ru_RU&size=450,450&apikey=2e0af910-8693-4179-a540-f192dfc6967f`;
-  const img = mapEl.querySelector("img");
-  img.src = mapUrl;
-  img.alt = `Карта ${name}`;
-}
-
-export function updateLastUpdated(el, lastUpdate) {
-  const now = new Date();
-  const diffMinutes = Math.floor((now - lastUpdate) / 60000);
-
-  if (diffMinutes === 0) {
-    el.textContent = "Обновлено только что";
-  } else if (diffMinutes === 1) {
-    el.textContent = "Обновлено 1 минуту назад";
-  } else {
-    el.textContent = `Обновлено ${diffMinutes} минут назад`;
-  }
-}
-
-export function addHistoryItem(weatherData, itemTemplate, historyListEl) {
-  const oldHistory = JSON.parse(localStorage.getItem("searchHistory")) || [];
-  const cityName = weatherData.name;
-
-  const newItem = {
-    name: weatherData.name,
-    time: getShortDateAndTime(),
-    temp: Math.round(weatherData.main.temp),
-    description: weatherData.weather[0].description,
-  };
-
-  const modifiedHistory = oldHistory.filter((item) => item.name !== cityName);
-  modifiedHistory.unshift(newItem);
-  const trimModifiedHistory = modifiedHistory.slice(0, 10);
-  localStorage.setItem("searchHistory", JSON.stringify(trimModifiedHistory));
-
-  historyListEl.innerHTML = "";
-  trimModifiedHistory.forEach((item) => {
-    const clone = itemTemplate.content.cloneNode(true);
-
-    clone.querySelector(".city-name").textContent = item.name;
-    clone.querySelector(".city-datetime").textContent = item.time;
-    clone.querySelector(".weather-temp").textContent = item.temp + "°C";
-    clone.querySelector(".weather-desc").textContent = item.description;
-
-    historyListEl.append(clone);
-  });
-}
-
-export function getShortDateAndTime(date = new Date()) {
-  return date.toLocaleDateString("ru-RU", {
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-export function getLongDate(date = new Date()) {
-  return date.toLocaleDateString("ru-RU", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+    storageService.clearHistory();
+    weatherView.clearHistory();
   });
 }
 
