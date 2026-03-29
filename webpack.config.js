@@ -1,6 +1,9 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
+const NODE_ENV = process.env.NODE_ENV;
+const PREFIX = "/Otus_Lesson_13_Base";
+
 module.exports = {
   entry: {
     index: "./src/index.js",
@@ -8,7 +11,7 @@ module.exports = {
   output: {
     filename: "[name].bundle.js",
     path: path.resolve(__dirname, "dist"),
-    publicPath: "/",
+    publicPath: NODE_ENV === "production" ? PREFIX : "/",
     clean: true,
   },
   devServer: {
