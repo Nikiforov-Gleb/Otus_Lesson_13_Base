@@ -3,15 +3,77 @@ import { DateFormatter } from "../services/dateFormatter";
 export class WeatherInfoView {
   constructor(eventBus) {
     this.eventBus = eventBus;
-    this.weatherInfoEl = document.querySelector("#weatherData");
-    this.lastUpdateEl = document.querySelector("#lastUpdated");
+
+    this.root = document.createElement("div");
+    this.root.className = "card";
+
+    this.root.innerHTML = `
+      <!-- Empty state - shown initially -->
+      <div id="weatherData">
+        <div class="weather-header">
+          <div>
+            <h2 id="cityName"></h2>
+            <p id="currentDateTime"></p>
+          </div>
+          <div class="last-updated">
+            <i class="fas fa-history"></i>
+            <span id="lastUpdated">Updated just now</span>
+          </div>
+        </div>
+
+        <div class="weather-content">
+          <div class="current-weather">
+            <div class="weather-primary">
+              <div class="weather-icon">
+                <img
+                  src="https://openweathermap.org/img/wn/04d@2x.png"
+                />
+              </div>
+              <div>
+                <div class="temperature">°C</div>
+                <div class="weather-description"></div>
+              </div>
+            </div>
+
+            <div class="weather-details">
+              <div class="weather-detail">
+                <i class="fas fa-wind"></i>
+                <div>
+                  <p>Ветер</p>
+                  <p data-wind>m/s</p>
+                </div>
+              </div>
+              <div class="weather-detail">
+                <i class="fas fa-tint"></i>
+                <div>
+                  <p>Влажность</p>
+                  <p humid>%</p>
+                </div>
+              </div>
+              <div class="weather-detail">
+                <i class="fas fa-compress-alt"></i>
+                <div>
+                  <p>Давление</p>
+                  <p pressure>hPa</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    this.weatherInfoEl = this.root.querySelector("#weatherData");
+    this.lastUpdateEl = this.root.querySelector("#lastUpdated");
 
     let lastUpdateValue = new Date();
-    setInterval(() => this.updateLastUpdated(lastUpdateValue), 60000);
+    this.interval = setInterval(
+      () => this.updateLastUpdated(lastUpdateValue),
+      60000,
+    );
 
-    this.eventBus.on("weather:loaded", (weather) => {
-      this.render(weather);
-    });
+    this.handlerRender = (weather) => this.render(weather);
+    this.eventBus.on("weather:loaded", this.handlerRender);
   }
 
   render(weatherData) {
@@ -37,6 +99,10 @@ export class WeatherInfoView {
     this.updateLastUpdated(new Date());
   }
 
+  getElement() {
+    return this.root;
+  }
+
   updateLastUpdated(lastUpdate) {
     const now = new Date();
     const diffMinutes = Math.floor((now - lastUpdate) / 60000);
@@ -48,5 +114,11 @@ export class WeatherInfoView {
     } else {
       this.lastUpdateEl.textContent = `Обновлено ${diffMinutes} минут назад`;
     }
+  }
+
+  destroy() {
+    this.root.innerHTML = "";
+    clearInterval(this.interval);
+    this.eventBus.off("weather:loaded", this.handlerRender);
   }
 }

@@ -112,6 +112,61 @@ button {
   font-family: inherit;
 }
 
+.about-button {
+  position: relative;
+  background-color: var(--elements-color);
+  color: var(--text-color);
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+  transition: background-color var(--transition);
+}
+
+.about-button:hover:not(:disabled) {
+  background-color: var(--elements-dark);
+}
+
+.about-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.about {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.about .card {
+  padding: 2rem;
+}
+
+.about p {
+  color: var(--text-light);
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.about h2 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.25rem;
+  color: var(--text-color);
+}
+
+.about ul {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 1rem;
+}
+
+.about ul li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-light);
+}
+
 /* Footer */
 footer {
   background-color: var(--gray-800);

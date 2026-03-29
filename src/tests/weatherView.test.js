@@ -1,7 +1,6 @@
-import { WeatherInfoView } from "../components/weatherInfoView";
-import { MapView } from "../components/mapView";
 import { HistoryView } from "../components/historyView";
 import { EventEmitter } from "../eventBus";
+import { renderWeatherPage } from "../pages/weatherPage";
 
 import fs from "fs";
 import path from "path";
@@ -14,7 +13,7 @@ jest.mock("../services/dateFormatter.js", () => ({
 
 function setupDOM() {
   const html = fs.readFileSync(
-    path.resolve(__dirname, "../pages/weather.html"),
+    path.resolve(__dirname, "../index.html"),
     "utf8",
   );
 
@@ -46,18 +45,21 @@ describe("Weather view", () => {
   };
 
   beforeEach(() => {
+    jest.useFakeTimers();
+    const start = new Date("2026-01-01T12:00:00");
+    jest.setSystemTime(start);
     setupDOM();
     eventBus = new EventEmitter();
+    renderWeatherPage(document.getElementById("app"), eventBus);
+    eventBus.emit("weather:loaded", weatherData);
   });
 
   afterEach(() => {
     document.body.innerHTML = "";
+    jest.clearAllTimers();
   });
 
   it("should correctly render weather info", () => {
-    new WeatherInfoView(eventBus);
-    eventBus.emit("weather:loaded", weatherData);
-
     expect(document.querySelector("#cityName").textContent).toBe("Москва");
     expect(document.querySelector(".temperature").textContent).toBe("5°C");
     expect(document.querySelector(".weather-description").textContent).toBe(
@@ -76,9 +78,6 @@ describe("Weather view", () => {
   });
 
   it("should correctly render map", async () => {
-    new MapView(eventBus);
-    eventBus.emit("weather:loaded", weatherData);
-
     const img = document.querySelector(".map-container img");
 
     expect(img.src).toContain("ll=37,55");
@@ -108,26 +107,45 @@ describe("Weather view", () => {
 
   it("clearHistory should  removes all items", () => {
     document.querySelector(".history-list").innerHTML = "<li>test</li>";
-    new HistoryView(eventBus);
     eventBus.emit("history:updated", null);
 
     expect(document.querySelector(".history-list").innerHTML).toBe("");
   });
 
   it("updateLastUpdated shows the correct time", () => {
-    const weatherView = new WeatherInfoView(eventBus);
-    const el = document.querySelector("#lastUpdated");
+    const lastUpdatedEl = document.querySelector("#lastUpdated");
 
-    const twoMinutesAgo = new Date(Date.now() - 2 * 60000);
-    weatherView.updateLastUpdated(twoMinutesAgo);
-    expect(el.textContent).toBe("Обновлено 2 минут назад");
+    expect(lastUpdatedEl.textContent).toBe("Обновлено только что");
 
-    const oneMinuteAgo = new Date(Date.now() - 60000);
-    weatherView.updateLastUpdated(oneMinuteAgo);
-    expect(el.textContent).toBe("Обновлено 1 минуту назад");
+    jest.advanceTimersByTime(60000);
+    expect(lastUpdatedEl.textContent).toBe("Обновлено 1 минуту назад");
 
-    const now = new Date();
-    weatherView.updateLastUpdated(now);
-    expect(el.textContent).toBe("Обновлено только что");
+    jest.advanceTimersByTime(120000);
+    expect(lastUpdatedEl.textContent).toBe("Обновлено 3 минут назад");
+  });
+
+  it("should emit with city name when submit", () => {
+    const emitSpy = jest.spyOn(eventBus, "emit");
+
+    const input = document.querySelector("#cityInput");
+    const form = document.querySelector("#cityForm");
+
+    input.value = "Омск";
+
+    input.dispatchEvent(new Event(input, { bubbles: true }));
+    form.dispatchEvent(
+      new Event("submit", { bubbles: true, cancelable: true }),
+    );
+
+    expect(emitSpy).toHaveBeenCalledWith("weather:submit", "Омск");
+  });
+
+  it("should disabled submit button if input empty", () => {
+    const input = document.querySelector("#cityInput");
+    const submitBtn = document.querySelector("#submitButton");
+    input.value = "";
+    input.dispatchEvent(new Event("input"));
+
+    expect(submitBtn.disabled).toBe(true);
   });
 });

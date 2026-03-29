@@ -15,7 +15,13 @@ export default defineConfig([
       semi: ["error", "always"],
     },
     extends: ["js/recommended"],
-    languageOptions: { globals: globals.browser },
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        PRODUCTION: "readonly",
+        PREFIX: "readonly",
+      },
+    },
   },
   {
     files: ["*.config.js", "*.config.mjs", "*.config.cjs"],
