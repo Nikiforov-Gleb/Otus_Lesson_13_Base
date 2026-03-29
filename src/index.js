@@ -15,8 +15,10 @@ const eventBus = new EventEmitter();
 const weatherService = new WeatherService();
 const locationService = new LocationService();
 const storageService = new StorageService(eventBus);
+const base_url = PRODUCTION ? PREFIX : "/";
 
 async function init() {
+  console.log(base_url);
   eventBus.on("weather:submit", onSubmitCity);
   window.addEventListener("popstate", router);
 
@@ -38,7 +40,7 @@ async function init() {
       window.history.pushState(
         { city: weather.name },
         "",
-        `/weather/${weather.name}`,
+        `${base_url}weather/${weather.name}`,
       );
     } catch {
       window.history.pushState({}, "", `/`);
@@ -48,8 +50,14 @@ async function init() {
 }
 
 async function onSubmitCity(cityName) {
-  const isWeatherPage = window.location.pathname.startsWith("/weather/");
-  window.history.pushState({ city: cityName }, "", `/weather/${cityName}`);
+  const isWeatherPage = window.location.pathname.startsWith(
+    `${base_url}weather/`,
+  );
+  window.history.pushState(
+    { city: cityName },
+    "",
+    `${base_url}weather/${cityName}`,
+  );
 
   if (isWeatherPage) {
     try {
@@ -63,17 +71,17 @@ async function onSubmitCity(cityName) {
 }
 
 function onAboutClick() {
-  window.history.pushState({}, "", `/about`);
+  window.history.pushState({}, "", `${base_url}about`);
   router();
 }
 
 async function router() {
   const path = window.location.pathname;
 
-  if (path === "/about") {
+  if (path === `${base_url}about`) {
     renderAboutPage(app);
-  } else if (path.startsWith("/weather/")) {
-    const cityName = decodeURIComponent(path.split("/weather/")[1]);
+  } else if (path.startsWith(`${base_url}weather/`)) {
+    const cityName = decodeURIComponent(path.split(`${base_url}weather/`)[1]);
     renderWeatherPage(app, eventBus);
 
     try {
