@@ -1,6 +1,6 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const { webpack } = require("webpack");
+const webpack = require("webpack");
 
 const NODE_ENV = process.env.NODE_ENV;
 const PREFIX = "/Otus_Lesson_13_Base/";
