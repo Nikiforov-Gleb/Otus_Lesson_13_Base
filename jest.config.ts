@@ -105,7 +105,7 @@ const config = {
   // notifyMode: "failure-change",
 
   // A preset that is used as a base for Jest's configuration
-  // preset: undefined,
+  preset: "ts-jest",
 
   // Run tests from one or more projects
   // projects: undefined,
@@ -199,14 +199,14 @@ const config = {
   // watchman: true,
 
   coverageThreshold: {
-    "src/**/*.js": {
+    "src/**/*.ts": {
       branches: 60,
       functions: 60,
       lines: 60,
       statements: 60,
     },
 
-    "src/eventBus.js": {
+    "src/eventBus.ts": {
       branches: 70,
       functions: 70,
       lines: 70,

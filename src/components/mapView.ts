@@ -1,5 +1,15 @@
-export class MapView {
-  constructor(eventBus) {
+import { EventEmitter } from "../eventBus";
+import { WeatherData } from "../data/weatherData";
+import { View } from "../data/view";
+
+export class MapView implements View {
+  private eventBus: EventEmitter;
+  private root: HTMLDivElement;
+  private mapEl: HTMLDivElement;
+
+  private handlerRender = (weather: WeatherData) => this.render(weather);
+
+  constructor(eventBus: EventEmitter) {
     this.eventBus = eventBus;
 
     this.root = document.createElement("div");
@@ -21,28 +31,29 @@ export class MapView {
       </div>
     `;
 
-    this.mapEl = this.root.querySelector(".map-container");
+    const mapEl = this.root.querySelector(".map-container");
+    if (!mapEl) throw new Error("Map container not found");
+    this.mapEl = mapEl as HTMLDivElement;
 
-    this.handlerRender = (weather) => this.render(weather);
-    this.eventBus.on("weather:loaded", this.handlerRender);
+    this.eventBus.on("weatherLoaded", this.handlerRender);
   }
 
-  getElement() {
+  getElement(): HTMLDivElement {
     return this.root;
   }
 
-  render(weather) {
+  render(weather: WeatherData) {
     const { name, coord } = weather;
     const { lat, lon } = coord;
 
     const mapUrl = `https://static-maps.yandex.ru/v1?ll=${lon},${lat}&z=12&l=map&pt=${lon},${lat},pm2rdm&lang=ru_RU&size=450,450&apikey=2e0af910-8693-4179-a540-f192dfc6967f`;
-    const img = this.mapEl.querySelector("img");
+    const img = this.mapEl.querySelector("img")!;
     img.src = mapUrl;
     img.alt = `Карта ${name}`;
   }
 
   destroy() {
     this.root.innerHTML = "";
-    this.eventBus.off("weather:loaded", this.handlerRender);
+    this.eventBus.off("weatherLoaded", this.handlerRender);
   }
 }
