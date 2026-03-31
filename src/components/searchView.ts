@@ -19,6 +19,7 @@ export class SearchSectionView implements View {
     const cityName = inputEl.value;
 
     this.eventBus.emit("weatherSubmit", cityName);
+    this.onClearInput();
   };
   private onClearInput = () => {
     this.input.value = "";
