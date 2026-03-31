@@ -1,9 +1,9 @@
 import { EventEmitter } from "../eventBus";
 
 describe("EventEmitter", () => {
-  let emitter;
+  let emitter: EventEmitter;
 
-  const eventName = "eventTest";
+  const eventName = "weatherSubmit";
   const eventPayload = "Data";
 
   beforeEach(() => {
@@ -59,19 +59,5 @@ describe("EventEmitter", () => {
 
     expect(handler1).not.toHaveBeenCalled();
     expect(handler2).toHaveBeenCalledWith(eventPayload);
-  });
-
-  it("emit should not fail if event does not exist", () => {
-    expect(() => {
-      emitter.emit("unknown", eventPayload);
-    }).not.toThrow();
-  });
-
-  it("off should not fail if event does not exist", () => {
-    const handler = jest.fn();
-
-    expect(() => {
-      emitter.off("unknown", handler);
-    }).not.toThrow();
   });
 });

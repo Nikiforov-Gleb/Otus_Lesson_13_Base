@@ -1,4 +1,4 @@
-export function renderAboutPage(app) {
+export function renderAboutPage(app: HTMLElement) {
   app.innerHTML = `
     <main class="container">
         <section class="about">

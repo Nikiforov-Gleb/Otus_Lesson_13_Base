@@ -3,7 +3,7 @@ import { WeatherService } from "../services/weatherService";
 global.fetch = jest.fn();
 
 describe("WeatherService", () => {
-  let service;
+  let service: WeatherService;
 
   const weatherData = {
     name: "Москва",
@@ -19,11 +19,11 @@ describe("WeatherService", () => {
 
   beforeEach(() => {
     service = new WeatherService();
-    fetch.mockClear();
+    (fetch as jest.Mock).mockClear();
   });
 
   it("should fetch weather by city and return json", async () => {
-    fetch.mockResolvedValueOnce({
+    (fetch as jest.Mock).mockResolvedValueOnce({
       json: jest.fn().mockResolvedValueOnce(weatherData),
     });
 
@@ -54,7 +54,7 @@ describe("WeatherService", () => {
       },
     ];
 
-    fetch
+    (fetch as jest.Mock)
       .mockResolvedValueOnce({
         json: jest.fn().mockResolvedValueOnce(weatherDataWithWrongName),
       })

@@ -5,9 +5,12 @@ import { WeatherService } from "./services/weatherService";
 import { LocationService } from "./services/locationService";
 import { StorageService } from "./services/storageService";
 
-import { renderWeatherPage } from "../src/pages/weatherPage";
-import { renderStartPage } from "../src/pages/startPage";
+import { renderWeatherPage } from "./pages/weatherPage";
+import { renderStartPage } from "./pages/startPage";
 import { renderAboutPage } from "./pages/aboutPage";
+
+declare const PRODUCTION: boolean;
+declare const PREFIX: string;
 
 const app = document.getElementById("app");
 const eventBus = new EventEmitter();
@@ -19,11 +22,11 @@ const base_url = PRODUCTION ? PREFIX : "/";
 
 async function init() {
   console.log(base_url);
-  eventBus.on("weather:submit", onSubmitCity);
+  eventBus.on("weatherSubmit", onSubmitCity);
   window.addEventListener("popstate", router);
 
   const aboutBtn = document.querySelector(".about-button");
-  aboutBtn.addEventListener("click", onAboutClick);
+  aboutBtn!.addEventListener("click", onAboutClick);
 
   const path = window.location.pathname;
   const isStartPage = path === "/" || path.endsWith("index.html");
@@ -31,8 +34,7 @@ async function init() {
   if (isStartPage && "geolocation" in navigator) {
     try {
       const position = await locationService.getCurrentPosition();
-
-      let weather = await weatherService.getWeatherByGeolocation(
+      const weather = await weatherService.getWeatherByGeolocation(
         position.coords.latitude,
         position.coords.longitude,
       );
@@ -43,13 +45,13 @@ async function init() {
         `${base_url}weather/${weather.name}`,
       );
     } catch {
-      window.history.pushState({}, "", `/`);
+      window.history.pushState({}, "", `${base_url}`);
     }
   }
   router();
 }
 
-async function onSubmitCity(cityName) {
+async function onSubmitCity(cityName: string) {
   const isWeatherPage = window.location.pathname.startsWith(
     `${base_url}weather/`,
   );
@@ -62,7 +64,7 @@ async function onSubmitCity(cityName) {
   if (isWeatherPage) {
     try {
       const weather = await weatherService.getWeatherByCityName(cityName);
-      eventBus.emit("weather:loaded", weather);
+      eventBus.emit("weatherLoaded", weather);
     } catch (err) {
       alert("Город не найден");
       console.log(err);
@@ -79,21 +81,21 @@ async function router() {
   const path = window.location.pathname;
 
   if (path === `${base_url}about`) {
-    renderAboutPage(app);
+    renderAboutPage(app!);
   } else if (path.startsWith(`${base_url}weather/`)) {
     const cityName = decodeURIComponent(path.split(`${base_url}weather/`)[1]);
-    renderWeatherPage(app, eventBus);
+    renderWeatherPage(app!, eventBus);
 
     try {
       const weather = await weatherService.getWeatherByCityName(cityName);
-      eventBus.emit("weather:loaded", weather);
+      eventBus.emit("weatherLoaded", weather);
     } catch (err) {
       alert("Город не найден");
       console.log(err);
     }
   } else {
-    renderStartPage(app, eventBus);
-    eventBus.emit("history:updated", storageService.getHistory());
+    renderStartPage(app!, eventBus);
+    eventBus.emit("historyUpdated", storageService.getHistory());
   }
 }
 

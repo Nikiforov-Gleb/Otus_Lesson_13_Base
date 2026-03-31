@@ -1,14 +1,16 @@
+import type { WeatherData } from "../data/weatherData.ts";
+
 export class WeatherService {
   apiKey = "c722da73a7894ccbda8169bd7d4e9dc2";
 
-  async getWeatherByCityName(cityName) {
-    let response = await fetch(
+  async getWeatherByCityName(cityName: string) {
+    const response = await fetch(
       `https://api.openweathermap.org/data/2.5/weather?units=metric&lang=ru&q=${cityName}&appid=${this.apiKey}`,
     );
     return await response.json();
   }
 
-  async getWeatherByGeolocation(latitude, longitude) {
+  async getWeatherByGeolocation(latitude: number, longitude: number) {
     const weatherResponse = await fetch(
       `https://api.openweathermap.org/data/2.5/weather?units=metric&lang=ru&lat=${latitude}&lon=${longitude}&appid=${this.apiKey}`,
     );
@@ -22,6 +24,6 @@ export class WeatherService {
       weatherData.name = geoData[0].local_names.ru;
     }
 
-    return weatherData;
+    return weatherData as WeatherData;
   }
 }

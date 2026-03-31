@@ -1,7 +1,8 @@
 import { SearchSectionView } from "../components/searchView";
 import { HistoryView } from "../components/historyView";
+import { EventEmitter } from "../eventBus";
 
-export function renderStartPage(app, eventBus) {
+export function renderStartPage(app: HTMLElement, eventBus: EventEmitter) {
   const searchView = new SearchSectionView(eventBus);
   const historyView = new HistoryView(eventBus);
 
@@ -20,6 +21,11 @@ export function renderStartPage(app, eventBus) {
         </main>
     `;
 
-  app.querySelector(".search-section").append(searchView.getElement());
-  app.querySelector(".history-section").append(historyView.getElement());
+  const searchSection = app.querySelector(".search-section");
+  if (!searchSection) throw new Error("Search section not found");
+  searchSection.append(searchView.getElement());
+
+  const historySection = app.querySelector(".history-section");
+  if (!historySection) throw new Error("History section not found");
+  historySection.append(historyView.getElement());
 }

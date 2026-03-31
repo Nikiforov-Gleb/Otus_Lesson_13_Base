@@ -2,10 +2,12 @@ import { SearchSectionView } from "../components/searchView";
 import { WeatherInfoView } from "../components/weatherInfoView";
 import { MapView } from "../components/mapView";
 import { HistoryView } from "../components/historyView";
+import { EventEmitter } from "../eventBus";
+import { View } from "../data/view";
 
-let currentViews = [];
+let currentViews: View[] = [];
 
-export function renderWeatherPage(app, eventBus) {
+export function renderWeatherPage(app: HTMLElement, eventBus: EventEmitter) {
   currentViews.forEach((view) => view.destroy?.());
   currentViews = [];
 
@@ -44,8 +46,19 @@ export function renderWeatherPage(app, eventBus) {
         </main>
     `;
 
-  app.querySelector(".search-section").append(searchView.getElement());
-  app.querySelector(".weather-section").append(weatherView.getElement());
-  app.querySelector(".map-section").append(mapView.getElement());
-  app.querySelector(".history-section").append(historyView.getElement());
+  const searchSection = app.querySelector(".search-section");
+  if (!searchSection) throw new Error("Search section not found");
+  searchSection.append(searchView.getElement());
+
+  const weatherSection = app.querySelector(".weather-section");
+  if (!weatherSection) throw new Error("Weather section not found");
+  weatherSection.append(weatherView.getElement());
+
+  const mapSection = app.querySelector(".map-section");
+  if (!mapSection) throw new Error("Map section not found");
+  mapSection.append(mapView.getElement());
+
+  const historySection = app.querySelector(".history-section");
+  if (!historySection) throw new Error("History section not found");
+  historySection.append(historyView.getElement());
 }

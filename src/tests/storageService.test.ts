@@ -1,6 +1,8 @@
 import { StorageService } from "../services/storageService";
 import { DateFormatter } from "../services/dateFormatter";
 import { EventEmitter } from "../eventBus";
+import { WeatherData } from "../data/weatherData";
+import { HistoryItem } from "../data/historyItem";
 
 jest.mock("../services/dateFormatter", () => ({
   DateFormatter: {
@@ -9,9 +11,11 @@ jest.mock("../services/dateFormatter", () => ({
 }));
 
 describe("Storage Service", () => {
-  let emitter;
-  let service;
-  DateFormatter.getShortDateAndTime.mockReturnValue("24 мар., 09:21");
+  let emitter: EventEmitter;
+  let service: StorageService;
+  (DateFormatter.getShortDateAndTime as jest.Mock).mockReturnValue(
+    "24 мар., 09:21",
+  );
 
   const weatherData = {
     name: "Москва",
@@ -23,7 +27,7 @@ describe("Storage Service", () => {
         description: "Облачно",
       },
     ],
-  };
+  } as WeatherData;
 
   beforeEach(() => {
     emitter = new EventEmitter();
@@ -84,7 +88,9 @@ describe("Storage Service", () => {
 
       expect(result.length).toBe(2);
       expect(result[0].name).toBe("Москва");
-      expect(result.filter((item) => item.name === "Москва").length).toBe(1);
+      expect(
+        result.filter((item: HistoryItem) => item.name === "Москва").length,
+      ).toBe(1);
     });
 
     it("should max ten items in array", () => {

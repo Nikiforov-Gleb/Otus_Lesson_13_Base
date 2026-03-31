@@ -1,7 +1,18 @@
 import { DateFormatter } from "../services/dateFormatter";
+import { EventEmitter } from "../eventBus";
+import { WeatherData } from "../data/weatherData";
+import { View } from "../data/view";
 
-export class WeatherInfoView {
-  constructor(eventBus) {
+export class WeatherInfoView implements View {
+  private eventBus: EventEmitter;
+  private root: HTMLDivElement;
+  private weatherInfoEl: HTMLDivElement;
+  private lastUpdateEl: HTMLDivElement;
+
+  private interval;
+  private handlerRender: (weather: WeatherData) => void;
+
+  constructor(eventBus: EventEmitter) {
     this.eventBus = eventBus;
 
     this.root = document.createElement("div");
@@ -63,49 +74,57 @@ export class WeatherInfoView {
       </div>
     `;
 
-    this.weatherInfoEl = this.root.querySelector("#weatherData");
-    this.lastUpdateEl = this.root.querySelector("#lastUpdated");
+    const weatherInfoEl = this.root.querySelector("#weatherData");
+    if (!weatherInfoEl) throw new Error("Weather info element not found");
+    this.weatherInfoEl = weatherInfoEl as HTMLDivElement;
 
-    let lastUpdateValue = new Date();
+    const lastUpdateEl = this.root.querySelector("#lastUpdated");
+    if (!lastUpdateEl) throw new Error("Last update element not found");
+    this.lastUpdateEl = lastUpdateEl as HTMLDivElement;
+
+    const lastUpdateValue = new Date();
     this.interval = setInterval(
       () => this.updateLastUpdated(lastUpdateValue),
       60000,
     );
 
     this.handlerRender = (weather) => this.render(weather);
-    this.eventBus.on("weather:loaded", this.handlerRender);
+    this.eventBus.on("weatherLoaded", this.handlerRender);
   }
 
-  render(weatherData) {
+  render(weatherData: WeatherData) {
     const icon = weatherData.weather[0].icon;
 
-    this.weatherInfoEl.querySelector("#cityName").textContent =
+    this.weatherInfoEl.querySelector("#cityName")!.textContent =
       weatherData.name;
-    this.weatherInfoEl.querySelector(".weather-icon img").src =
-      `https://openweathermap.org/img/wn/${icon}@2x.png`;
-    this.weatherInfoEl.querySelector(".temperature").textContent =
+    (
+      this.weatherInfoEl.querySelector(".weather-icon img")! as HTMLImageElement
+    ).src = `https://openweathermap.org/img/wn/${icon}@2x.png`;
+    this.weatherInfoEl.querySelector(".temperature")!.textContent =
       Math.round(weatherData.main.temp) + "°C";
-    this.weatherInfoEl.querySelector(".weather-description").textContent =
+    this.weatherInfoEl.querySelector(".weather-description")!.textContent =
       weatherData.weather[0].description;
-    this.weatherInfoEl.querySelector("[data-wind]").textContent =
+    this.weatherInfoEl.querySelector("[data-wind]")!.textContent =
       weatherData.wind.speed + " м/с";
-    this.weatherInfoEl.querySelector("[humid]").textContent =
+    this.weatherInfoEl.querySelector("[humid]")!.textContent =
       weatherData.main.humidity + "%";
-    this.weatherInfoEl.querySelector("[pressure]").textContent =
+    this.weatherInfoEl.querySelector("[pressure]")!.textContent =
       weatherData.main.pressure + " Па";
-    this.weatherInfoEl.querySelector("#currentDateTime").textContent =
+    this.weatherInfoEl.querySelector("#currentDateTime")!.textContent =
       DateFormatter.getLongDate();
 
     this.updateLastUpdated(new Date());
   }
 
-  getElement() {
+  getElement(): HTMLDivElement {
     return this.root;
   }
 
-  updateLastUpdated(lastUpdate) {
+  updateLastUpdated(lastUpdate: Date) {
     const now = new Date();
-    const diffMinutes = Math.floor((now - lastUpdate) / 60000);
+    const diffMinutes = Math.floor(
+      (now.getTime() - lastUpdate.getTime()) / 60000,
+    );
 
     if (diffMinutes === 0) {
       this.lastUpdateEl.textContent = "Обновлено только что";
@@ -119,6 +138,6 @@ export class WeatherInfoView {
   destroy() {
     this.root.innerHTML = "";
     clearInterval(this.interval);
-    this.eventBus.off("weather:loaded", this.handlerRender);
+    this.eventBus.off("weatherLoaded", this.handlerRender);
   }
 }

@@ -1,4 +1,4 @@
-import { DateFormatter } from "../services/dateFormatter.js";
+import { DateFormatter } from "../services/dateFormatter";
 
 describe("Date formatter", () => {
   const date = new Date("2026-03-24T11:45:00");
